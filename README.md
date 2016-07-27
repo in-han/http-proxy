@@ -6,5 +6,5 @@
 >2. https代理功能，pure 代理. go 实现，第一次用go.
 
 #To do:
->  a. 1和2功能放一起，放在php或go实现。
->  b. https实现改写报文，重定向功能，http://www.zhihu.com/question/24484809 麻烦。
+>a. 1和2功能放一起，放在php或go实现。
+>b. https实现改写报文，重定向功能，http://www.zhihu.com/question/24484809 麻烦。
