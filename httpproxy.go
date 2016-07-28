@@ -73,7 +73,7 @@ func handleConnection( conn  net.Conn ){
             if false == checkClose(err)  {
                 break
             }
-            //checkClose(err)
+
             channel <- buf[:n]
         }
         close( channel )
@@ -90,41 +90,61 @@ func handleConnection( conn  net.Conn ){
             }
             channel <- buf[:n]
         }
+        close( channel )
     }(server, server_req)
 
-    var client_str, server_str []byte
+    // var client_str, server_str []byte
+    var active_fd_cnt int = 2
     for {
         select {
-            case client_str = <- client_req :
+            case client_str, err := (<- client_req) :
                 /*
                 if false == checkClose(err)  {
                     break
                 }
                 */
+                // client routine close channel, client connect will close. but it can still read ?  
+                // close server, wait for server output ?  
+                if ! err {
+                    active_fd_cnt = active_fd_cnt - 1
+                    if active_fd_cnt == 0 {
+                        break;
+                    }
+                    client_req = make( chan []byte, 1 )
+                    continue 
+                }
 
                 //fmt.Println("receive client request,", client_str )
                 fmt.Println("receive client request" );
-                n, err := server.Write([]byte(client_str) )
+                n, err2 := server.Write([]byte(client_str) )
                 fmt.Println("write length is:%d", n);
-                if false == checkClose(err) || len(client_str) == 0 {
+                if false == checkClose(err2) || len(client_str) == 0 {
                     return
 
                     break
                 }
 
-            case server_str = <- server_req :
+            case server_str, err := (<- server_req) :
                 //    checkClose(err) || break
                 /*
                 if false == checkClose(err)  {
                     break
                 }
                 */
+                if ! err {
+                    active_fd_cnt = active_fd_cnt - 1
+                    if active_fd_cnt == 0 {
+                        break;
+                    }
+                    server_req = make( chan []byte, 1 )
+                    continue 
+                }
 
                 //fmt.Println("receive server response,", server_str )
                 fmt.Println("receive server response" );
-                n, err := conn.Write([]byte(server_str) )
+                n, err2 := conn.Write([]byte(server_str) )
                 fmt.Println("write length is:%d", n);
-                if false == checkClose(err)  {
+                if false == checkClose(err2)  {
                     break
                 }
 
