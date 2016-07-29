@@ -113,7 +113,6 @@ func handleConnection( conn  net.Conn ){
                     client_req = make( chan []byte, 1 )
                     server.Close()
                     fmt.Println("client 无法读，关闭server, 可能还需要将server的返回写到client上");
-            //        break
                     continue 
                 }
 
